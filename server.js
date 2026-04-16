@@ -1,6 +1,9 @@
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
+const {Server} = require('socket.io')
+
+
 
 const pathToIndex = path.join(__dirname, 'static', 'index.html')
 const indexHtmlFile = fs.readFileSync(pathToIndex)
@@ -27,3 +30,19 @@ const server = http.createServer((req, res)=>{
 })
 
 server.listen(3000)
+const io = new Server(server)
+
+io.on('connection', (socket)=>{
+    console.log(`user with id ${socket.id} has been connected`)
+
+    let userNickname = 'user'
+    socket.on('new_message', (message)=>{
+        console.log(message)
+        io.emit('message', userNickname + ':' + message)
+    })
+    socket.on('set_nickname', (nickname)=>{
+        // console.log(nickname)
+        userNickname = nickname
+    })
+})
+
